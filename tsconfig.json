@@ -3,9 +3,13 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      // A new catch-all that replaces the baseUrl:
+      "*": ["./src/*"],
+      // Every other path now has an explicit common prefix:
+      "@/*": ["./src/*"],
+      "@app/*": ["./src/app/*"],
+      "@lib/*": ["./src/lib/*"],
+      "@components/*": ["./src/components/*"]
     }
   },
   "include": [
