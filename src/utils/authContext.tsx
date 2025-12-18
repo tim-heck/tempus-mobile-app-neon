@@ -1,3 +1,4 @@
+import { authClient } from "@lib/auth-client";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SplashScreen, useRouter } from "expo-router";
 import { createContext, PropsWithChildren, useEffect, useState } from "react";
@@ -7,8 +8,11 @@ SplashScreen.preventAutoHideAsync();
 type AuthState = {
   isLoggedIn: boolean;
   isReady: boolean;
-  logIn: () => void;
-  logOut: () => void;
+  logIn: (
+    email: string,
+    password: string
+  ) => Promise<{ success: boolean; error?: string }>;
+  logOut: () => Promise<void>;
   signUp: (
     email: string,
     password: string,
@@ -21,8 +25,8 @@ const authStorageKey = "auth-key";
 export const AuthContext = createContext<AuthState>({
   isLoggedIn: false,
   isReady: false,
-  logIn: () => {},
-  logOut: () => {},
+  logIn: async () => ({ success: false, error: "Not initialized" }),
+  logOut: async () => {},
   signUp: async () => ({ success: false, error: "Not initialized" }),
 });
 
@@ -40,16 +44,45 @@ export function AuthProvider({ children }: PropsWithChildren) {
     }
   };
 
-  const logIn = () => {
-    setIsLoggedIn(true);
-    storeAuthState({ isLoggedIn: true });
-    router.replace("/");
+  const logIn = async (
+    email: string,
+    password: string
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const response = await authClient.signIn.email({
+        email,
+        password,
+      });
+
+      if (response.error) {
+        return {
+          success: false,
+          error: response.error.message || "Login failed",
+        };
+      }
+
+      setIsLoggedIn(true);
+      await storeAuthState({ isLoggedIn: true });
+      router.replace("/");
+      return { success: true };
+    } catch (error) {
+      console.error("Login error:", error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "An error occurred",
+      };
+    }
   };
 
-  const logOut = () => {
-    setIsLoggedIn(false);
-    storeAuthState({ isLoggedIn: false });
-    router.replace("/login");
+  const logOut = async () => {
+    try {
+      await authClient.signOut();
+      setIsLoggedIn(false);
+      await storeAuthState({ isLoggedIn: false });
+      router.replace("/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
   const signUp = async (
@@ -58,20 +91,19 @@ export function AuthProvider({ children }: PropsWithChildren) {
     name: string
   ): Promise<{ success: boolean; error?: string }> => {
     try {
-      const response = await fetch("http://localhost:3000/api/auth/sign-up", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password, name }),
+      const response = await authClient.signUp.email({
+        email,
+        password,
+        name,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        return { success: false, error: errorData.message || "Sign up failed" };
+      if (response.error) {
+        return {
+          success: false,
+          error: response.error.message || "Sign up failed",
+        };
       }
 
-      const data = await response.json();
       setIsLoggedIn(true);
       await storeAuthState({ isLoggedIn: true });
       router.replace("/");

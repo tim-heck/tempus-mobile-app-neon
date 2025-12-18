@@ -2,11 +2,12 @@ import { AppText } from "@/components/AppText";
 import { Button } from "@/components/Button";
 import { TextInput } from "@/components/TextInput";
 import { useContext, useState } from "react";
-import { Alert, ScrollView, View } from "react-native";
+import { Alert, Pressable, ScrollView, View } from "react-native";
 import { AuthContext } from "../utils/authContext";
 
 export default function LoginScreen() {
   const authContext = useContext(AuthContext);
+  const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -20,7 +21,7 @@ export default function LoginScreen() {
   const validateForm = () => {
     const newErrors: typeof errors = {};
 
-    if (!name.trim()) {
+    if (isSignUp && !name.trim()) {
       newErrors.name = "Name is required";
     }
 
@@ -32,46 +33,60 @@ export default function LoginScreen() {
 
     if (!password) {
       newErrors.password = "Password is required";
-    } else if (password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSignUp = async () => {
+  const handleSubmit = async () => {
     if (!validateForm()) {
       return;
     }
 
     setLoading(true);
-    const result = await authContext.signUp(email, password, name);
+    const result = isSignUp
+      ? await authContext.signUp(email, password, name)
+      : await authContext.logIn(email, password);
+    console.log(result);
     setLoading(false);
 
     if (!result.success) {
-      Alert.alert("Sign Up Failed", result.error || "An error occurred");
+      Alert.alert(
+        isSignUp ? "Sign Up Failed" : "Login Failed",
+        result.error || "An error occurred"
+      );
     }
+  };
+
+  const handleToggleMode = () => {
+    setIsSignUp(!isSignUp);
+    setEmail("");
+    setPassword("");
+    setName("");
+    setErrors({});
   };
 
   return (
     <ScrollView className="flex-1 bg-white">
       <View className="flex-1 justify-center p-6">
         <AppText size="heading" center className="mb-2">
-          Create Account
+          {isSignUp ? "Create Account" : "Welcome Back"}
         </AppText>
         <AppText center color="secondary" className="mb-8">
-          Sign up to get started
+          {isSignUp ? "Sign up to get started" : "Log in to your account"}
         </AppText>
 
-        <TextInput
-          label="Full Name"
-          placeholder="Enter your full name"
-          value={name}
-          onChangeText={setName}
-          error={errors.name}
-          editable={!loading}
-        />
+        {isSignUp && (
+          <TextInput
+            label="Full Name"
+            placeholder="Enter your full name"
+            value={name}
+            onChangeText={setName}
+            error={errors.name}
+            editable={!loading}
+          />
+        )}
 
         <TextInput
           label="Email"
@@ -86,7 +101,9 @@ export default function LoginScreen() {
 
         <TextInput
           label="Password"
-          placeholder="At least 8 characters"
+          placeholder={
+            isSignUp ? "At least 8 characters" : "Enter your password"
+          }
           value={password}
           onChangeText={setPassword}
           secureTextEntry
@@ -95,14 +112,40 @@ export default function LoginScreen() {
         />
 
         <Button
-          title={loading ? "Signing up..." : "Sign Up"}
-          onPress={handleSignUp}
+          title={
+            loading
+              ? isSignUp
+                ? "Signing up..."
+                : "Logging in..."
+              : isSignUp
+                ? "Sign Up"
+                : "Log In"
+          }
+          onPress={handleSubmit}
           disabled={loading}
         />
 
-        <AppText center color="secondary" size="small" className="mt-4">
-          By signing up, you agree to our Terms of Service
-        </AppText>
+        <View className="mt-6 flex-row justify-center">
+          <AppText center color="secondary" size="small">
+            {isSignUp ? "Already have an account? " : "Don't have an account? "}
+          </AppText>
+          <Pressable onPress={handleToggleMode} disabled={loading}>
+            <AppText
+              center
+              color="secondary"
+              size="small"
+              className="font-semibold underline"
+            >
+              {isSignUp ? "Log In" : "Sign Up"}
+            </AppText>
+          </Pressable>
+        </View>
+
+        {isSignUp && (
+          <AppText center color="secondary" size="small" className="mt-4">
+            By signing up, you agree to our Terms of Service
+          </AppText>
+        )}
       </View>
     </ScrollView>
   );

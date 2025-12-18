@@ -1,6 +1,6 @@
+import { expo } from "@better-auth/expo";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { openAPI } from "better-auth/plugins";
 import { db } from "../db/db";
 import * as schema from "../db/schema";
 
@@ -12,6 +12,6 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
-  trustedOrigins: [process.env.CLIENT_URL!],
-  plugins: [openAPI()],
+  trustedOrigins: ["tempus://", "http://localhost:3000"],
+  plugins: [expo()],
 });
