@@ -1,4 +1,9 @@
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import DateTimePicker, {
+  DateTimePickerEvent,
+} from "@react-native-community/datetimepicker";
+import { Button } from "components/Button";
+import ColorPicker from "components/ColorPicker";
 import { useContext, useEffect, useState } from "react";
 import {
   Modal,
@@ -9,12 +14,6 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-// import DateTimePicker, { useDefaultStyles } from "react-native-ui-datepicker";
-import DateTimePicker, {
-  DateTimePickerEvent,
-} from "@react-native-community/datetimepicker";
-import { Button } from "components/Button";
-import ColorPicker from "components/ColorPicker";
 import { ColorMenuItem } from "types";
 import CalendarContext from "utils/calendarContext";
 import { taskBaseColors } from "utils/constants";

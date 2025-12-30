@@ -17,7 +17,7 @@ export default function Layout() {
   return (
     <Stack>
       <Stack.Screen
-        name="calendar"
+        name="index"
         options={() => ({
           headerLeft: () => (
             <Text className="pb-2 pl-4 text-lg font-semibold">

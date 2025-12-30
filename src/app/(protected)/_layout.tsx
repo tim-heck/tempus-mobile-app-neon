@@ -1,23 +1,9 @@
-import {
-  DrawerContentComponentProps,
-  DrawerContentScrollView,
-  DrawerItemList,
-} from "@react-navigation/drawer";
-import { Button } from "components/Button";
+import CustomDrawerContent from "components/CustomDrawerContent";
 import { Redirect } from "expo-router";
 import { Drawer } from "expo-router/drawer";
 import { useContext } from "react";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { AuthContext } from "../../utils/authContext";
-
-const CustomDrawerContent = (props: DrawerContentComponentProps) => {
-  const authState = useContext(AuthContext);
-  return (
-    <DrawerContentScrollView {...props}>
-      <DrawerItemList {...props} />
-      <Button title="Log out!" onPress={authState.logOut} />
-    </DrawerContentScrollView>
-  );
-};
 
 export default function ProtectedLayout() {
   const authState = useContext(AuthContext);
@@ -31,17 +17,26 @@ export default function ProtectedLayout() {
   }
 
   return (
-    <Drawer
-      screenOptions={{ drawerPosition: "right" }}
-      drawerContent={(props) => <CustomDrawerContent {...props} />}
-    >
-      <Drawer.Screen
-        name="(calendar)"
-        options={{
-          drawerLabel: "Calendar",
-          headerShown: false,
+    <GestureHandlerRootView className="flex-1">
+      <Drawer
+        drawerContent={(props) => <CustomDrawerContent {...props} />}
+        screenOptions={{
+          drawerPosition: "right",
+          drawerHideStatusBarOnOpen: true,
+          drawerActiveBackgroundColor: "#262626",
+          drawerActiveTintColor: "#ffffff",
+          drawerItemStyle: { borderRadius: 6 },
+          drawerLabelStyle: { fontSize: 16 },
         }}
-      />
-    </Drawer>
+      >
+        <Drawer.Screen
+          name="(calendar)"
+          options={{
+            drawerLabel: "Calendar",
+            headerShown: false,
+          }}
+        />
+      </Drawer>
+    </GestureHandlerRootView>
   );
 }

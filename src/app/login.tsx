@@ -2,7 +2,8 @@ import { AppText } from "@/components/AppText";
 import { Button } from "@/components/Button";
 import { TextInput } from "@/components/TextInput";
 import { useContext, useState } from "react";
-import { Alert, Pressable, ScrollView, View } from "react-native";
+import { Alert, Pressable, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { AuthContext } from "../utils/authContext";
 
 export default function LoginScreen() {
@@ -68,7 +69,7 @@ export default function LoginScreen() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1">
       <View className="flex-1 justify-center p-6">
         <AppText size="heading" center className="mb-2">
           {isSignUp ? "Create Account" : "Welcome Back"}
@@ -147,6 +148,6 @@ export default function LoginScreen() {
           </AppText>
         )}
       </View>
-    </ScrollView>
+    </SafeAreaView>
   );
 }

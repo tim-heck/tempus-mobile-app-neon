@@ -21,6 +21,7 @@ import { CalendarMonthDay } from "components/CalendarMonthDay";
 import CalendarWeek from "components/CalendarWeek";
 import { CustomButton } from "components/CustomButton";
 import Select from "components/Select";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Day } from "types";
 import CalendarContext, { views } from "utils/calendarContext";
 
@@ -247,7 +248,10 @@ export default function Calendar() {
   };
 
   return (
-    <View className="flex h-full w-full flex-col bg-white">
+    <SafeAreaView
+      edges={["left", "right", "bottom"]}
+      className="flex flex-1 flex-col bg-white"
+    >
       <View
         className={`border-b-2 border-b-black ${calendarState?.view.value === "month" ? "mb-2" : ""}`}
       >
@@ -322,6 +326,6 @@ export default function Calendar() {
           />
         </>
       )}
-    </View>
+    </SafeAreaView>
   );
 }
