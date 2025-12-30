@@ -2,10 +2,9 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
+    "module": "esnext",
     "paths": {
-      // A new catch-all that replaces the baseUrl:
       "*": ["./src/*"],
-      // Every other path now has an explicit common prefix:
       "@/*": ["./src/*"],
       "@app/*": ["./src/app/*"],
       "@lib/*": ["./src/lib/*"],
@@ -15,8 +14,8 @@
   "include": [
     "**/*.ts",
     "**/*.tsx",
+    "nativewind-env.d.ts",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts",
-    "nativewind-env.d.ts"
+    "expo-env.d.ts"
   ]
 }
