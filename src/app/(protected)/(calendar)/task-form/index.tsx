@@ -52,16 +52,8 @@ export default function TaskFormModal() {
   useEffect(() => {
     if (
       calendarState?.selectedTask &&
-      typeof tempTaskState?.setTempStartDateTime === "function" &&
-      typeof tempTaskState?.setTempEndDateTime === "function" &&
       typeof tempTaskState?.setTempTaskColor === "function"
     ) {
-      tempTaskState?.setTempStartDateTime(
-        calendarState?.selectedTask.startDateTime
-      );
-      tempTaskState?.setTempEndDateTime(
-        calendarState?.selectedTask.endDateTime
-      );
       setColor(taskBaseColors[calendarState?.selectedTask.color]);
       tempTaskState?.setTempTaskColor(
         taskBaseColors[calendarState?.selectedTask.color]
@@ -91,7 +83,6 @@ export default function TaskFormModal() {
     tempTaskState?.setTempName(name);
     tempTaskState?.setTempStartDateTime(startDateTime);
     tempTaskState?.setTempEndDateTime(endDateTime);
-    tempTaskState?.setTempTaskColor(color);
     tempTaskState?.setTempNotes(notes);
   }, [name, startDateTime, endDateTime, color, notes]);
 
