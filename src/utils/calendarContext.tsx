@@ -114,7 +114,7 @@ export function CalendarProvider({ children }: CalendarContextProps) {
       id,
       taskId: currentTaskId,
       bucketId: currentBucketId,
-      name: "New Task",
+      name: "",
       color: "bg-teal-500",
       startDateTime,
       endDateTime,

@@ -148,7 +148,9 @@ export default function Layout() {
                   }
                 }}
               >
-                <Text className="pr-4 text-xl font-semibold">Add</Text>
+                <Text className="pr-4 text-xl font-semibold">
+                  {tempTaskState?.isEditing ? "Update" : "Add"}
+                </Text>
               </TouchableWithoutFeedback>
             );
           },

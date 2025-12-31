@@ -6,6 +6,7 @@ import CalendarContext from "utils/calendarContext";
 import { Link } from "expo-router";
 import { Task } from "types";
 import { taskOpaqueColors } from "utils/constants";
+import TempTaskContext from "utils/tempTaskContext";
 
 interface TaskProps {
   task: Task;
@@ -16,7 +17,8 @@ const positionOffIntervalOffset: number = 1;
 const topOffset: number = 14;
 
 export default function DisplayedTask({ task }: TaskProps) {
-  const calendarContext = useContext(CalendarContext);
+  const calendarState = useContext(CalendarContext);
+  const tempTaskState = useContext(TempTaskContext);
   const [taskPosition, setTaskPosition] = useState<number>(
     Number(format(task.startDateTime, "HH")) * 60 +
       Number(format(task.startDateTime, "mm")) +
@@ -40,7 +42,7 @@ export default function DisplayedTask({ task }: TaskProps) {
         positionOffIntervalOffset +
         borderOffset
     );
-  }, [calendarContext]);
+  }, [calendarState]);
 
   return (
     <View
@@ -52,7 +54,8 @@ export default function DisplayedTask({ task }: TaskProps) {
         <Link href="/task-form" push asChild>
           <TouchableWithoutFeedback
             onPress={() => {
-              calendarContext?.setSelectedTask(task);
+              calendarState?.setSelectedTask(task);
+              tempTaskState?.setIsEditing(true);
             }}
           >
             <View className="absolute bottom-0 left-0 right-0 top-0 w-full flex-row">

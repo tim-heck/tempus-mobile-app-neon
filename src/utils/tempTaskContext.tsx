@@ -17,6 +17,8 @@ export type TempTaskState = {
   tempNotes: string;
   setTempNotes: (notes: string) => void;
   clearTempTask: () => void;
+  isEditing: boolean;
+  setIsEditing: (isEditing: boolean) => void;
 };
 
 const TempTaskContext = createContext<TempTaskState | null>(null);
@@ -53,6 +55,8 @@ export function TempTaskProvider({ children }: TempTaskContextProps) {
   );
   const [tempNotes, setTempNotes] = useState<string>("");
 
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+
   const clearTempTask = () => {
     setTempName("");
     setTempStartDateTime(
@@ -69,6 +73,7 @@ export function TempTaskProvider({ children }: TempTaskContextProps) {
     );
     setTempTaskColor(taskBaseColors["bg-teal-500"]);
     setTempNotes("");
+    setIsEditing(false);
   };
 
   const value = {
@@ -83,6 +88,8 @@ export function TempTaskProvider({ children }: TempTaskContextProps) {
     tempNotes,
     setTempNotes,
     clearTempTask,
+    isEditing,
+    setIsEditing,
   };
 
   return (

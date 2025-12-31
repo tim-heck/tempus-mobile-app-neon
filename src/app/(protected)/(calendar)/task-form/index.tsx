@@ -4,11 +4,11 @@ import DateTimePicker, {
 } from "@react-native-community/datetimepicker";
 import { Button } from "components/Button";
 import ColorPicker from "components/ColorPicker";
+import { addHours, startOfHour } from "date-fns";
 import { useContext, useEffect, useState } from "react";
 import {
   Modal,
   ScrollView,
-  StyleSheet,
   Text,
   TextInput,
   TouchableWithoutFeedback,
@@ -19,14 +19,11 @@ import CalendarContext from "utils/calendarContext";
 import { taskBaseColors } from "utils/constants";
 import TempTaskContext from "utils/tempTaskContext";
 
+const CURRENT_DATE_TIME = new Date();
+
 export default function TaskFormModal() {
   const calendarState = useContext(CalendarContext);
   const tempTaskState = useContext(TempTaskContext);
-  // const defaultStyles = useDefaultStyles();
-
-  const [showStartDatePicker, setShowStartDatePicker] =
-    useState<boolean>(false);
-  const [showEndDatePicker, setShowEndDatePicker] = useState<boolean>(false);
 
   const [name, setName] = useState<string>(
     calendarState?.selectedTask ? calendarState.selectedTask.name : ""
@@ -34,12 +31,12 @@ export default function TaskFormModal() {
   const [startDateTime, setStartDateTime] = useState<Date>(
     calendarState?.selectedTask
       ? calendarState?.selectedTask.startDateTime
-      : new Date()
+      : startOfHour(CURRENT_DATE_TIME)
   );
   const [endDateTime, setEndDateTime] = useState<Date>(
     calendarState?.selectedTask
       ? calendarState?.selectedTask.endDateTime
-      : new Date()
+      : startOfHour(addHours(CURRENT_DATE_TIME, 1))
   );
   const [color, setColor] = useState<ColorMenuItem>(
     calendarState?.selectedTask
@@ -72,83 +69,11 @@ export default function TaskFormModal() {
     }
   }, []);
 
-  // useEffect(() => {
-  //   console.log(params);
-  //   console.log(calendarState);
-  //   if (
-  //     calendarState?.selectedTask &&
-  //     typeof tempTaskState?.setTempStartDateTime === "function" &&
-  //     typeof tempTaskState?.setTempEndDateTime === "function" &&
-  //     typeof tempTaskState?.setTempTaskColor === "function"
-  //   ) {
-  //     tempTaskState?.setTempStartDateTime(
-  //       calendarState?.selectedTask.startDateTime
-  //     );
-  //     tempTaskState?.setTempEndDateTime(
-  //       calendarState?.selectedTask.endDateTime
-  //     );
-  //     tempTaskState?.setTempTaskColor(
-  //       taskBaseColors[calendarState?.selectedTask.color]
-  //     );
-  //   }
-  //   if (
-  //     params.newStartDateTime &&
-  //     params.newEndDateTime &&
-  //     typeof tempTaskState?.setTempStartDateTime === "function" &&
-  //     typeof tempTaskState?.setTempEndDateTime === "function"
-  //   ) {
-  //     const newStartDate = params.newStartDateTime
-  //       ? new Date(params.newStartDateTime as string)
-  //       : null;
-  //     const newEndDate = params.newEndDateTime
-  //       ? new Date(params.newEndDateTime as string)
-  //       : null;
-  //     if (newStartDate && !isNaN(newStartDate.getTime())) {
-  //       tempTaskState?.setTempStartDateTime(newStartDate);
-  //     }
-  //     if (newEndDate && !isNaN(newEndDate.getTime())) {
-  //       tempTaskState?.setTempEndDateTime(newEndDate);
-  //     }
-  //   }
-  //   if (params.task) {
-  //     const task =
-  //       typeof params.task === "string" ? JSON.parse(params.task) : params.task;
-  //     if (task && typeof task === "object") {
-  //       tempTaskState?.setTempName(task.name || "");
-  //       const startDate =
-  //         typeof task.startDateTime === "string"
-  //           ? new Date(task.startDateTime)
-  //           : task.startDateTime;
-  //       const endDate =
-  //         typeof task.endDateTime === "string"
-  //           ? new Date(task.endDateTime)
-  //           : task.endDateTime;
-  //       if (startDate && !isNaN(startDate.getTime())) {
-  //         tempTaskState?.setTempStartDateTime(startDate);
-  //       }
-  //       if (endDate && !isNaN(endDate.getTime())) {
-  //         tempTaskState?.setTempEndDateTime(endDate);
-  //       }
-  //       if (task.color) {
-  //         tempTaskState?.setTempTaskColor(taskBaseColors[task.color]);
-  //       }
-  //       tempTaskState?.setTempNotes(task.notes || "");
-  //     }
-  //   }
-  // }, [
-  //   calendarState,
-  //   params.task,
-  //   params.newStartDateTime,
-  //   params.newEndDateTime,
-  //   tempTaskState,
-  // ]);
-
   const updateStartDate = (
     event: DateTimePickerEvent,
     selectedDate: Date | undefined
   ) => {
     const currentDate = selectedDate;
-    setShowStartDatePicker(false);
     setStartDateTime(currentDate as Date);
     tempTaskState?.setTempStartDateTime(currentDate as Date);
   };
@@ -158,14 +83,29 @@ export default function TaskFormModal() {
     selectedDate: Date | undefined
   ) => {
     const currentDate = selectedDate;
-    setShowEndDatePicker(false);
     setEndDateTime(currentDate as Date);
     tempTaskState?.setTempEndDateTime(currentDate as Date);
   };
 
+  useEffect(() => {
+    tempTaskState?.setTempName(name);
+    tempTaskState?.setTempStartDateTime(startDateTime);
+    tempTaskState?.setTempEndDateTime(endDateTime);
+    tempTaskState?.setTempTaskColor(color);
+    tempTaskState?.setTempNotes(notes);
+  }, [name, startDateTime, endDateTime, color, notes]);
+
   return (
     <View className="relative h-full bg-white">
-      <ScrollView contentContainerStyle={styles.taskForm}>
+      <ScrollView
+        contentContainerStyle={{
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+          justifyContent: "space-between",
+          flex: 1,
+        }}
+      >
         <View className="flex flex-col">
           <View className="flex flex-row p-4">
             <TextInput
@@ -180,24 +120,6 @@ export default function TaskFormModal() {
             <View className="flex flex-row items-center justify-between">
               <Text className="text-lg font-semibold">Start:</Text>
               <View className="flex flex-row">
-                {/* <TouchableOpacity
-                  className="rounded-md bg-neutral-200 p-2 px-4"
-                  onPress={() => {
-                    if (showEndDatePicker) {
-                      setShowEndDatePicker(!showEndDatePicker);
-                    }
-                    setShowStartDatePicker(!showStartDatePicker);
-                  }}
-                >
-                  <Text className="text-lg font-semibold">
-                    {format(
-                      tempTaskState?.tempStartDateTime
-                        ? tempTaskState.tempStartDateTime.toString()
-                        : "",
-                      "MMM d, yyyy p"
-                    )}
-                  </Text>
-                </TouchableOpacity> */}
                 <DateTimePicker
                   testID="startDateTimeDate"
                   value={startDateTime as Date}
@@ -214,39 +136,9 @@ export default function TaskFormModal() {
                 />
               </View>
             </View>
-            {/* {showStartDatePicker && (
-              <DateTimePicker
-                mode="single"
-                date={tempTaskState?.tempStartDateTime}
-                onChange={({ date }) =>
-                  tempTaskState?.setTempStartDateTime(date as Date)
-                }
-                styles={defaultStyles}
-                timePicker
-                use12Hours
-              />
-            )} */}
             <View className="flex flex-row items-center justify-between">
               <Text className="text-lg font-semibold">End:</Text>
               <View className="flex flex-row">
-                {/* <TouchableOpacity
-                  className="rounded-md bg-neutral-200 p-2 px-4"
-                  onPress={() => {
-                    if (showStartDatePicker) {
-                      setShowStartDatePicker(!showStartDatePicker);
-                    }
-                    setShowEndDatePicker(!showEndDatePicker);
-                  }}
-                >
-                  <Text className="text-lg font-semibold">
-                    {format(
-                      tempTaskState?.tempEndDateTime
-                        ? tempTaskState.tempEndDateTime.toString()
-                        : "",
-                      "MMM d, yyyy p"
-                    )}
-                  </Text>
-                </TouchableOpacity> */}
                 <DateTimePicker
                   testID="endDateTimeDate"
                   value={endDateTime as Date}
@@ -263,27 +155,6 @@ export default function TaskFormModal() {
                 />
               </View>
             </View>
-            {/* {showEndDatePicker && (
-              <DateTimePicker
-                mode="single"
-                date={tempTaskState?.tempEndDateTime}
-                onChange={({ date }) => {
-                  tempTaskState?.setTempEndDateTime(date as Date);
-                }}
-                styles={defaultStyles}
-                timePicker
-                use12Hours
-              />
-            )} */}
-            {/* {showEndDatePicker && (
-              <DateTimePicker
-                testID="dateTimePicker"
-                value={tempTaskState?.tempEndDateTime as Date}
-                mode={endTimeMode}
-                is24Hour={false}
-                onChange={updateEndDate}
-              />
-            )} */}
           </View>
           <View className="h-[1px] w-full bg-neutral-200" />
           <TouchableWithoutFeedback
@@ -321,11 +192,10 @@ export default function TaskFormModal() {
       <Modal
         visible={modalOpen}
         animationType="slide"
-        // transparent
         presentationStyle="pageSheet"
       >
-        <View className="flex flex-col flex-1 items-center justify-center">
-          <View className="rounded-lg bg-white flex-1">
+        <View className="flex flex-col flex-1 items-center justify-center w-full">
+          <View className="flex rounded-lg bg-white flex-1 w-full">
             <ColorPicker
               selectedColor={color}
               setColor={setColor}
@@ -344,14 +214,3 @@ export default function TaskFormModal() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  taskForm: {
-    display: "flex",
-    flexDirection: "column",
-    height: "100%",
-    justifyContent: "space-between",
-    flex: 1,
-  },
-  background: {},
-});
