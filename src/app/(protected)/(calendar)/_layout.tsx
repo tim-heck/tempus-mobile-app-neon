@@ -2,6 +2,7 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
 import { endOfWeek, format, startOfWeek } from "date-fns";
 import { Stack, router, useNavigation } from "expo-router";
+import { authClient } from "lib/auth-client";
 import { useContext, useRef } from "react";
 import { Text, TouchableWithoutFeedback, View } from "react-native";
 import CalendarContext from "utils/calendarContext";
@@ -13,6 +14,7 @@ export default function Layout() {
   const nav = useNavigation<DrawerNavigationProp<{}>>();
 
   const userMenuRef = useRef(null);
+  const { data: session } = authClient.useSession();
 
   return (
     <Stack>

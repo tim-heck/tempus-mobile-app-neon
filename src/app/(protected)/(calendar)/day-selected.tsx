@@ -87,6 +87,7 @@ export default function CalendarDay() {
       startDateTime: startDate,
       endDateTime: endDate,
       color: "bg-teal-500",
+      notes: "",
     };
     currentTasks[selectedDay][currentBucketId].push(tempTask);
     calendarState?.setTasks(currentTasks);

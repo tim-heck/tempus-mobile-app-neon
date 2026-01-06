@@ -34,7 +34,7 @@ export function CalendarWeekDay({ day }: CalendarWeekProps) {
     return tasksToRender
       .sort((a, b) => a.startDateTime.getTime() - b.startDateTime.getTime())
       .map((task) => (
-        <Link key={task.id} href="/task-form" push asChild>
+        <Link key={task.taskId} href="/task-form" push asChild>
           <Pressable
             onPress={() => {
               calendarContext?.setSelectedTask(task);

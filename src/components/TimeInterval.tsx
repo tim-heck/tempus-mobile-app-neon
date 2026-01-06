@@ -55,7 +55,6 @@ export default function TimeInterval({
                   Number(currentInterval.minute)
                 );
                 const tempTask: Task | void = calendarContext?.createTempTask(
-                  "temp",
                   currentDateTime,
                   new Date(addHours(currentDateTime, 1)),
                   true

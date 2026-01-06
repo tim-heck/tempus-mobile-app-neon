@@ -40,7 +40,7 @@ export function CalendarMonthDay({ day }: CalendarMonthProps) {
         if (index < 2) {
           taskComponents.push(
             <View
-              key={task.id}
+              key={task.taskId}
               className={`relative flex h-[15px] w-full flex-row items-center rounded-[3px] ${task.color}`}
             >
               <Text className="teal w-full whitespace-nowrap pl-1 text-xs font-bold text-white">

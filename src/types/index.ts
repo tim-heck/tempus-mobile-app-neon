@@ -1,15 +1,14 @@
 import { ReactNode } from "react";
 
 export type Task = {
-  id: string;
   taskId: string;
-  userId?: string;
+  // userId?: string;
   bucketId: string;
   name: string;
   color: string;
   startDateTime: Date;
   endDateTime: Date;
-  notes?: string;
+  notes: string;
 };
 
 export type TaskBucket = {

@@ -28,7 +28,6 @@ export type CalendarState = {
   ) => void;
   updateSelectedTask: (task: Task, shifted15MinIntervals: number) => void;
   createTempTask: (
-    id: string,
     startDateTime: Date,
     endDateTime: Date,
     shortPress: boolean
@@ -101,23 +100,20 @@ export function CalendarProvider({ children }: CalendarContextProps) {
   };
 
   const createTempTask = (
-    id: string,
     startDateTime: Date,
     endDateTime: Date,
     shortPress: boolean
   ) => {
-    const currentTaskCount = taskCount ? taskCount + 1 : 1;
-    const currentTaskId = "task" + currentTaskCount;
     const currentBucketCount = bucketCount ? bucketCount + 1 : 1;
     const currentBucketId = "bucket" + currentBucketCount;
     const tempTask = {
-      id,
-      taskId: currentTaskId,
+      taskId: "temp",
       bucketId: currentBucketId,
       name: "",
       color: "bg-teal-500",
       startDateTime,
       endDateTime,
+      notes: "",
     };
     setSelectedTask(tempTask);
     setTaskCount(taskCount);
@@ -155,8 +151,6 @@ export function CalendarProvider({ children }: CalendarContextProps) {
     notes: string
   ) => {
     const currentTasks = tasks ? { ...tasks } : {};
-    console.log(startDateTime, endDateTime);
-    console.log("currentTasks", currentTasks);
     const currentTaskStartDateTime: Date = startDateTime;
     const currentTaskEndDateTime: Date = endDateTime;
     const currentTaskStartDate = format(startDateTime, "yyyy-MMM-dd");
@@ -164,7 +158,7 @@ export function CalendarProvider({ children }: CalendarContextProps) {
     const currentNotes: string = notes;
 
     // Editing a task
-    if (selectedTask?.id !== "temp") {
+    if (selectedTask?.taskId !== "temp") {
       handleTaskDeletion();
     }
 
@@ -172,10 +166,6 @@ export function CalendarProvider({ children }: CalendarContextProps) {
     if (typeof setTaskCount === "function") {
       setTaskCount(currentTaskCount);
     }
-    const taskId =
-      selectedTask && selectedTask.id !== "temp"
-        ? selectedTask.id
-        : "task" + taskCount;
 
     if (!currentTasks[currentTaskStartDate]) {
       currentTasks[currentTaskStartDate] = {};
@@ -189,20 +179,17 @@ export function CalendarProvider({ children }: CalendarContextProps) {
         setBucketCount(currentBucketCount);
       }
       const bucketId = "bucket" + bucketCount;
-      currentTasks[currentTaskStartDate][bucketId] = [
-        {
-          id: taskCount + "_" + taskId + "_" + bucketId,
-          taskId,
-          // userId: session.user.id,
-          bucketId,
-          name: currentName,
-          color: taskColor,
-          // beforeColor: taskBorderColors[taskColor],
-          startDateTime: currentTaskStartDateTime,
-          endDateTime: currentTaskEndDateTime,
-          notes: currentNotes,
-        },
-      ];
+      const newTask = {
+        taskId: taskCount + "_" + bucketId,
+        bucketId,
+        name: currentName,
+        color: taskColor,
+        startDateTime: currentTaskStartDateTime,
+        endDateTime: currentTaskEndDateTime,
+        notes: currentNotes,
+      };
+
+      currentTasks[currentTaskStartDate][bucketId] = [newTask];
     } else if (Object.entries(currentTasks[currentTaskStartDate])?.length) {
       let overlapped = false;
       // Checks if new task overlaps with current buckets
@@ -218,22 +205,20 @@ export function CalendarProvider({ children }: CalendarContextProps) {
             const currentTaskEndDateTimeThreshold = new Date(
               task.endDateTime.getTime() - 30 * 60000
             );
+            const newTask = {
+              taskId: taskCount + "_" + bucketIndex,
+              bucketId: bucketIndex,
+              name: currentName,
+              color: taskColor,
+              startDateTime: currentTaskStartDateTime,
+              endDateTime: currentTaskEndDateTime,
+              notes: currentNotes,
+            };
             if (
               currentTaskStartDateTime >= task.startDateTime &&
               currentTaskStartDateTime < currentTaskStartDateTimeThreshold
             ) {
-              currentTasks[currentTaskStartDate][bucketIndex].push({
-                id: taskCount + "_" + taskId + "_" + bucketIndex,
-                taskId,
-                // userId: session.user.id,
-                bucketId: bucketIndex,
-                name: currentName,
-                color: taskColor,
-                // beforeColor: taskBorderColors[taskColor],
-                startDateTime: currentTaskStartDateTime,
-                endDateTime: currentTaskEndDateTime,
-                notes: currentNotes,
-              });
+              currentTasks[currentTaskStartDate][bucketIndex].push(newTask);
               overlapped = true;
               return;
             }
@@ -242,18 +227,7 @@ export function CalendarProvider({ children }: CalendarContextProps) {
               currentTaskStartDateTime >= currentTaskEndDateTimeThreshold &&
               currentTaskStartDateTime < task.endDateTime
             ) {
-              currentTasks[currentTaskStartDate][bucketIndex].push({
-                id: taskCount + "_" + taskId + "_" + bucketIndex,
-                taskId,
-                // userId: session.user.id,
-                bucketId: bucketIndex,
-                name: currentName,
-                color: taskColor,
-                // beforeColor: taskBorderColors[taskColor],
-                startDateTime: currentTaskStartDateTime,
-                endDateTime: currentTaskEndDateTime,
-                notes: currentNotes,
-              });
+              currentTasks[currentTaskStartDate][bucketIndex].push(newTask);
               overlapped = true;
             }
           });
@@ -269,20 +243,16 @@ export function CalendarProvider({ children }: CalendarContextProps) {
           setBucketCount(currentBucketCount);
         }
         const bucketId = "bucket" + currentBucketCount;
-        currentTasks[currentTaskStartDate][bucketId] = [
-          {
-            id: taskCount + "_" + taskId + "_" + bucketId,
-            taskId,
-            // userId: session.user.id,
-            bucketId,
-            name: currentName,
-            color: taskColor,
-            // beforeColor: taskBorderColors[taskColor],
-            startDateTime: currentTaskStartDateTime,
-            endDateTime: currentTaskEndDateTime,
-            notes: currentNotes,
-          },
-        ];
+        const newTask = {
+          taskId: taskCount + "_" + bucketId,
+          bucketId,
+          name: currentName,
+          color: taskColor,
+          startDateTime: currentTaskStartDateTime,
+          endDateTime: currentTaskEndDateTime,
+          notes: currentNotes,
+        };
+        currentTasks[currentTaskStartDate][bucketId] = [newTask];
       }
     }
     setTasks({ ...currentTasks });

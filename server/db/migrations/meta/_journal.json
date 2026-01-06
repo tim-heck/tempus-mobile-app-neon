@@ -15,6 +15,34 @@
       "when": 1764986939912,
       "tag": "0001_breezy_rawhide_kid",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1767729878374,
+      "tag": "0002_violet_wind_dancer",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1767730155963,
+      "tag": "0003_small_william_stryker",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1767733305810,
+      "tag": "0004_handy_mordo",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1767733382850,
+      "tag": "0005_young_morgan_stark",
+      "breakpoints": true
     }
   ]
 }

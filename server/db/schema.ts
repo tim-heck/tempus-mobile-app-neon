@@ -1,35 +1,19 @@
-import {
-  boolean,
-  pgTable,
-  text,
-  timestamp,
-  uuid,
-  varchar,
-} from "drizzle-orm/pg-core";
+import { boolean, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 export const tasks = pgTable("tasks", {
   id: uuid().primaryKey().defaultRandom(),
-  task_id: text("task_id").notNull().unique(),
-  user_id: text("user_id").notNull().unique(),
-  bucket_id: text("bucket_id").notNull(),
-  name: text("name").notNull(),
-  color: text("color").notNull(),
-  start_date_time: timestamp({ withTimezone: true }).defaultNow(),
-  end_date_time: timestamp({ withTimezone: true }).defaultNow(),
-  notes: text("notes").notNull(),
-});
-
-export const todos = pgTable("todos", {
-  id: uuid().primaryKey().defaultRandom(),
+  taskId: text("task_id").notNull(),
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  title: varchar({ length: 500 }).notNull(),
-  subtitle: varchar({ length: 500 }),
-  description: varchar({ length: 1000 }),
-  completed: boolean().default(false),
-  createdAt: timestamp({ withTimezone: true }).defaultNow(),
-  updatedAt: timestamp({ withTimezone: true }).defaultNow(),
+  bucketId: text("bucket_id").notNull(),
+  name: text("name").notNull(),
+  color: text("color").notNull(),
+  startDateTime: timestamp("start_date_time", {
+    withTimezone: true,
+  }).defaultNow(),
+  endDateTime: timestamp("end_date_time", { withTimezone: true }).defaultNow(),
+  notes: text("notes").notNull(),
 });
 
 export const user = pgTable("user", {

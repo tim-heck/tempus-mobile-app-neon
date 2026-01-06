@@ -102,11 +102,15 @@ export default function Bucket({ bucketedTasks }: BucketProps) {
         );
         bucket.tasks.forEach((task, index) => {
           if (index === 0) {
-            left.push(<DisplayedTask key={bucketId + task.id} task={task} />);
+            left.push(
+              <DisplayedTask key={bucketId + task.taskId} task={task} />
+            );
             return;
           }
           if (index === 1) {
-            right.push(<DisplayedTask key={bucketId + task.id} task={task} />);
+            right.push(
+              <DisplayedTask key={bucketId + task.taskId} task={task} />
+            );
             return;
           }
           if (
@@ -116,7 +120,9 @@ export default function Bucket({ bucketedTasks }: BucketProps) {
               task.startDateTime < bucketStartDateTimeThreshold
             )
           ) {
-            left.push(<DisplayedTask key={bucketId + task.id} task={task} />);
+            left.push(
+              <DisplayedTask key={bucketId + task.taskId} task={task} />
+            );
             return;
           }
           if (
@@ -126,10 +132,14 @@ export default function Bucket({ bucketedTasks }: BucketProps) {
               task.startDateTime < bucketStartDateTimeThreshold
             )
           ) {
-            right.push(<DisplayedTask key={bucketId + task.id} task={task} />);
+            right.push(
+              <DisplayedTask key={bucketId + task.taskId} task={task} />
+            );
             return;
           }
-          normal.push(<DisplayedTask key={bucketId + task.id} task={task} />);
+          normal.push(
+            <DisplayedTask key={bucketId + task.taskId} task={task} />
+          );
         });
 
         bucketsToDisplay.push(

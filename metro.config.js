@@ -6,5 +6,6 @@ const config = getDefaultConfig(__dirname, {
     enableGlobalPackages: true, // Set to true if using global packages
   },
 });
+config.resolver.unstable_enablePackageExports = true;
 
 module.exports = withNativeWind(config, { input: "./global.css" });

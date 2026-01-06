@@ -83,6 +83,7 @@ export default function TaskFormModal() {
     tempTaskState?.setTempName(name);
     tempTaskState?.setTempStartDateTime(startDateTime);
     tempTaskState?.setTempEndDateTime(endDateTime);
+    tempTaskState?.setTempTaskColor(color);
     tempTaskState?.setTempNotes(notes);
   }, [name, startDateTime, endDateTime, color, notes]);
 
