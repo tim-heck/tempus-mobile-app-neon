@@ -2,8 +2,8 @@ import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
-import { Button } from "components/Button";
 import ColorPicker from "components/ColorPicker";
+import { CustomButton } from "components/CustomButton";
 import { addHours, startOfHour } from "date-fns";
 import { useContext, useEffect, useState } from "react";
 import {
@@ -25,18 +25,22 @@ export default function TaskFormModal() {
   const calendarState = useContext(CalendarContext);
   const tempTaskState = useContext(TempTaskContext);
 
+  const selectedDate = calendarState?.displayedDay
+    ? calendarState?.displayedDay.setHours(CURRENT_DATE_TIME.getHours())
+    : new Date();
+
   const [name, setName] = useState<string>(
     calendarState?.selectedTask ? calendarState.selectedTask.name : ""
   );
   const [startDateTime, setStartDateTime] = useState<Date>(
     calendarState?.selectedTask
       ? calendarState?.selectedTask.startDateTime
-      : startOfHour(CURRENT_DATE_TIME)
+      : startOfHour(selectedDate)
   );
   const [endDateTime, setEndDateTime] = useState<Date>(
     calendarState?.selectedTask
       ? calendarState?.selectedTask.endDateTime
-      : startOfHour(addHours(CURRENT_DATE_TIME, 1))
+      : startOfHour(addHours(selectedDate, 1))
   );
   const [color, setColor] = useState<ColorMenuItem>(
     calendarState?.selectedTask
@@ -187,18 +191,19 @@ export default function TaskFormModal() {
         presentationStyle="pageSheet"
       >
         <View className="flex flex-col flex-1 items-center justify-center w-full">
-          <View className="flex rounded-lg bg-white flex-1 w-full">
+          <View className="flex rounded-lg bg-white flex-1 w-full mb-12">
             <ColorPicker
               selectedColor={color}
               setColor={setColor}
               setIsOpen={setModalOpen}
             />
-            <Button
-              title="Close"
-              theme="secondary"
+            <CustomButton
               onPress={() => {
                 setModalOpen(false);
               }}
+              text="Close"
+              className="rounded-t-none"
+              bgColor="bg-neutral-800"
             />
           </View>
         </View>

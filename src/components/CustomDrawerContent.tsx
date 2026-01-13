@@ -2,11 +2,11 @@ import {
   DrawerContentScrollView,
   DrawerItemList,
 } from "@react-navigation/drawer";
-import { Button } from "components/Button";
 import { authClient } from "lib/auth-client";
 import { useContext } from "react";
 import { Text, View } from "react-native";
 import { AuthContext } from "utils/authContext";
+import { CustomButton } from "./CustomButton";
 
 export default function CustomDrawerContent(props: any) {
   const authState = useContext(AuthContext);
@@ -32,7 +32,11 @@ export default function CustomDrawerContent(props: any) {
           </View>
         </View>
         <DrawerItemList {...props} />
-        <Button title="Log out" onPress={authState.logOut} theme="tertiary" />
+        <CustomButton
+          type="tertiary"
+          onPress={authState.logOut}
+          text="Log out"
+        />
       </DrawerContentScrollView>
     </View>
   );

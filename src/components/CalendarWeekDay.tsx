@@ -7,24 +7,26 @@ import CalendarContext from "utils/calendarContext";
 import { Link } from "expo-router";
 import { Day, Task } from "types";
 import { taskOpaqueColors } from "utils/constants";
+import TempTaskContext from "utils/tempTaskContext";
 
 interface CalendarWeekProps {
   day: Day;
 }
 
 export function CalendarWeekDay({ day }: CalendarWeekProps) {
-  const calendarContext = useContext(CalendarContext);
+  const calendarState = useContext(CalendarContext);
+  const tempTaskState = useContext(TempTaskContext);
   const today: string = format(Date(), "yyyy-MMM-dd");
   const formattedDate: string = format(day.date, "yyyy-MMM-dd");
 
   const renderTasks = (date: string) => {
     const tasksToRender: Task[] = [];
     if (
-      calendarContext?.tasks &&
-      calendarContext?.tasks[date] &&
-      JSON.stringify(calendarContext?.tasks[date]).length
+      calendarState?.tasks &&
+      calendarState?.tasks[date] &&
+      JSON.stringify(calendarState?.tasks[date]).length
     ) {
-      Object.values(calendarContext?.tasks[date]).forEach((bucket) => {
+      Object.values(calendarState?.tasks[date]).forEach((bucket) => {
         bucket.forEach((task) => {
           tasksToRender.push(task);
         });
@@ -37,7 +39,8 @@ export function CalendarWeekDay({ day }: CalendarWeekProps) {
         <Link key={task.taskId} href="/task-form" push asChild>
           <Pressable
             onPress={() => {
-              calendarContext?.setSelectedTask(task);
+              calendarState?.setSelectedTask(task);
+              tempTaskState?.setIsEditing(true);
             }}
           >
             <View className="w-full flex-row">
@@ -85,7 +88,7 @@ export function CalendarWeekDay({ day }: CalendarWeekProps) {
         <Link href="/day-selected" push asChild className="w-full">
           <Pressable
             onPress={() => {
-              calendarContext?.updateDay(day.date);
+              calendarState?.updateDay(day.date);
             }}
           >
             <View
@@ -108,10 +111,8 @@ export function CalendarWeekDay({ day }: CalendarWeekProps) {
     <Link href="/day-selected" push asChild>
       <Pressable
         onPress={() => {
-          if (
-            !JSON.stringify(calendarContext?.tasks?.[formattedDate])?.length
-          ) {
-            calendarContext?.updateDay(day.date);
+          if (!JSON.stringify(calendarState?.tasks?.[formattedDate])?.length) {
+            calendarState?.updateDay(day.date);
           }
         }}
       >

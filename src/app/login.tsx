@@ -1,6 +1,6 @@
 import { AppText } from "@/components/AppText";
-import { Button } from "@/components/Button";
 import { TextInput } from "@/components/TextInput";
+import { CustomButton } from "components/CustomButton";
 import { useContext, useState } from "react";
 import { Alert, Pressable, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -78,42 +78,45 @@ export default function LoginScreen() {
           {isSignUp ? "Sign up to get started" : "Log in to your account"}
         </AppText>
 
-        {isSignUp && (
+        <View className="flex flex-col gap-4 mb-4">
+          {isSignUp && (
+            <TextInput
+              label="Full Name"
+              placeholder="Enter your full name"
+              value={name}
+              onChangeText={setName}
+              error={errors.name}
+              editable={!loading}
+            />
+          )}
           <TextInput
-            label="Full Name"
-            placeholder="Enter your full name"
-            value={name}
-            onChangeText={setName}
-            error={errors.name}
+            label="Email"
+            placeholder="your.email@example.com"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            error={errors.email}
             editable={!loading}
           />
-        )}
+          <TextInput
+            label="Password"
+            placeholder={
+              isSignUp ? "At least 8 characters" : "Enter your password"
+            }
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            error={errors.password}
+            editable={!loading}
+          />
+        </View>
 
-        <TextInput
-          label="Email"
-          placeholder="your.email@example.com"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          error={errors.email}
-          editable={!loading}
-        />
-
-        <TextInput
-          label="Password"
-          placeholder={
-            isSignUp ? "At least 8 characters" : "Enter your password"
-          }
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          error={errors.password}
-          editable={!loading}
-        />
-
-        <Button
-          title={
+        <CustomButton
+          type="primary"
+          onPress={handleSubmit}
+          disabled={loading}
+          text={
             loading
               ? isSignUp
                 ? "Signing up..."
@@ -122,8 +125,6 @@ export default function LoginScreen() {
                 ? "Sign Up"
                 : "Log In"
           }
-          onPress={handleSubmit}
-          disabled={loading}
         />
 
         <View className="mt-6 flex-row justify-center">

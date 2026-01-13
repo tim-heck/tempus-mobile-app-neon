@@ -1,6 +1,7 @@
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { Selection } from "components/Select";
 import { addMinutes, format, subMinutes } from "date-fns";
+import { authClient } from "lib/auth-client";
 import { ReactNode, createContext, useState } from "react";
 import { Task, Tasks } from "types";
 
@@ -25,7 +26,7 @@ export type CalendarState = {
     endDateTime: Date,
     taskColor: string,
     notes: string
-  ) => void;
+  ) => Promise<string>;
   updateSelectedTask: (task: Task, shifted15MinIntervals: number) => void;
   createTempTask: (
     startDateTime: Date,
@@ -104,9 +105,9 @@ export function CalendarProvider({ children }: CalendarContextProps) {
     endDateTime: Date,
     shortPress: boolean
   ) => {
-    const currentBucketCount = bucketCount ? bucketCount + 1 : 1;
-    const currentBucketId = "bucket" + currentBucketCount;
-    const tempTask = {
+    const currentBucketCount: number = bucketCount ? bucketCount + 1 : 1;
+    const currentBucketId: string = "bucket" + currentBucketCount;
+    const tempTask: Task = {
       taskId: "temp",
       bucketId: currentBucketId,
       name: "",
@@ -143,7 +144,28 @@ export function CalendarProvider({ children }: CalendarContextProps) {
     setTasks({ ...currentTasks });
   };
 
-  const createOrUpdateTask = (
+  const insertTask = async (body: Task) => {
+    const cookies = authClient.getCookie();
+    const headers = {
+      "Content-Type": "application/json",
+      Cookie: cookies,
+    };
+    const response = await fetch(`http://localhost:3000/api/tasks`, {
+      method: "POST",
+      headers,
+      // 'include' can interfere with the cookies we just set manually in the headers
+      credentials: "omit",
+      body: JSON.stringify(body),
+    });
+
+    if (response.ok) {
+      return "success";
+    }
+
+    return "error";
+  };
+
+  const createOrUpdateTask = async (
     name: string,
     startDateTime: Date,
     endDateTime: Date,
@@ -156,6 +178,8 @@ export function CalendarProvider({ children }: CalendarContextProps) {
     const currentTaskStartDate = format(startDateTime, "yyyy-MMM-dd");
     const currentName: string = name;
     const currentNotes: string = notes;
+
+    let creationError: string | null = null;
 
     // Editing a task
     if (selectedTask?.taskId !== "temp") {
@@ -180,7 +204,7 @@ export function CalendarProvider({ children }: CalendarContextProps) {
       }
       const bucketId = "bucket" + bucketCount;
       const newTask = {
-        taskId: taskCount + "_" + bucketId,
+        taskId: "task" + taskCount + "_" + bucketId,
         bucketId,
         name: currentName,
         color: taskColor,
@@ -189,6 +213,10 @@ export function CalendarProvider({ children }: CalendarContextProps) {
         notes: currentNotes,
       };
 
+      const insertTaskResponse = await insertTask(newTask);
+      if (insertTaskResponse === "error") {
+        creationError = "Error creating task";
+      }
       currentTasks[currentTaskStartDate][bucketId] = [newTask];
     } else if (Object.entries(currentTasks[currentTaskStartDate])?.length) {
       let overlapped = false;
@@ -206,7 +234,7 @@ export function CalendarProvider({ children }: CalendarContextProps) {
               task.endDateTime.getTime() - 30 * 60000
             );
             const newTask = {
-              taskId: taskCount + "_" + bucketIndex,
+              taskId: "task" + taskCount + "_" + bucketIndex,
               bucketId: bucketIndex,
               name: currentName,
               color: taskColor,
@@ -218,6 +246,10 @@ export function CalendarProvider({ children }: CalendarContextProps) {
               currentTaskStartDateTime >= task.startDateTime &&
               currentTaskStartDateTime < currentTaskStartDateTimeThreshold
             ) {
+              const insertTaskResponse = await insertTask(newTask);
+              if (insertTaskResponse === "error") {
+                creationError = "Error creating task";
+              }
               currentTasks[currentTaskStartDate][bucketIndex].push(newTask);
               overlapped = true;
               return;
@@ -227,6 +259,10 @@ export function CalendarProvider({ children }: CalendarContextProps) {
               currentTaskStartDateTime >= currentTaskEndDateTimeThreshold &&
               currentTaskStartDateTime < task.endDateTime
             ) {
+              const insertTaskResponse = await insertTask(newTask);
+              if (insertTaskResponse === "error") {
+                creationError = "Error creating task";
+              }
               currentTasks[currentTaskStartDate][bucketIndex].push(newTask);
               overlapped = true;
             }
@@ -244,7 +280,7 @@ export function CalendarProvider({ children }: CalendarContextProps) {
         }
         const bucketId = "bucket" + currentBucketCount;
         const newTask = {
-          taskId: taskCount + "_" + bucketId,
+          taskId: "task" + taskCount + "_" + bucketId,
           bucketId,
           name: currentName,
           color: taskColor,
@@ -252,11 +288,16 @@ export function CalendarProvider({ children }: CalendarContextProps) {
           endDateTime: currentTaskEndDateTime,
           notes: currentNotes,
         };
+        const insertTaskResponse = await insertTask(newTask);
+        if (insertTaskResponse === "error") {
+          creationError = "Error creating task";
+        }
         currentTasks[currentTaskStartDate][bucketId] = [newTask];
       }
     }
     setTasks({ ...currentTasks });
     setSelectedTask(null);
+    return creationError ? "error" : "success";
   };
 
   const value = {

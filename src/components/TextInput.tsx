@@ -1,6 +1,6 @@
 import React from "react";
 import { TextInput as RNTextInput, TextInputProps, View } from "react-native";
-import { cn } from "../utils/cn";
+import { cn } from "utils/cn";
 import { AppText } from "./AppText";
 
 type CustomTextInputProps = TextInputProps & {
@@ -16,11 +16,11 @@ export function TextInput({
   ...rest
 }: CustomTextInputProps) {
   return (
-    <View className="mb-4">
+    <View className="">
       {label && <AppText className="mb-2 font-semibold">{label}</AppText>}
       <RNTextInput
         className={cn(
-          "border border-gray-300 rounded-md px-4 py-3 text-base",
+          "border border-gray-300 rounded-md bg-neutral-200 p-4 text-lg font-semibold leading-tight",
           error && "border-red-500",
           className
         )}

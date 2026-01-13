@@ -177,12 +177,12 @@ export default function CalendarDay() {
     <View className="flex h-full w-full flex-col bg-white">
       <View className="border-b-2 border-b-black">
         <View className="w-full flex-row items-center justify-between gap-4">
-          <CustomButton type="icon" onPress={() => goBack()}>
-            <View className="flex flex-row items-center gap-2">
-              <FontAwesome5 name="caret-left" size={28} color="black" />
-              <Text className="text-xl font-semibold">Prev</Text>
-            </View>
-          </CustomButton>
+          <CustomButton
+            type="icon"
+            icon={<FontAwesome5 name="caret-left" size={28} color="black" />}
+            text="Prev"
+            onPress={() => goBack()}
+          />
           <Text
             className={`font-body text-lg font-semibold ${format(calendarState?.displayedDay || new Date(), "yyyy-MMM-dd") === today ? "text-teal-500" : ""}`}
           >
@@ -191,12 +191,13 @@ export default function CalendarDay() {
               "EEEE, MMM do yyyy"
             )}
           </Text>
-          <CustomButton type="icon" onPress={() => goForward()}>
-            <View className="flex flex-row items-center gap-2">
-              <Text className="text-xl font-semibold">Next</Text>
-              <FontAwesome5 name="caret-right" size={28} color="black" />
-            </View>
-          </CustomButton>
+          <CustomButton
+            type="icon"
+            iconRight
+            icon={<FontAwesome5 name="caret-right" size={28} color="black" />}
+            text="Next"
+            onPress={() => goForward()}
+          />
         </View>
       </View>
       <ScrollView className="relative h-full" scrollEnabled={!isDragging}>

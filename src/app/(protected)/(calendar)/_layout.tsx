@@ -2,7 +2,6 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
 import { endOfWeek, format, startOfWeek } from "date-fns";
 import { Stack, router, useNavigation } from "expo-router";
-import { authClient } from "lib/auth-client";
 import { useContext, useRef } from "react";
 import { Text, TouchableWithoutFeedback, View } from "react-native";
 import CalendarContext from "utils/calendarContext";
@@ -14,7 +13,6 @@ export default function Layout() {
   const nav = useNavigation<DrawerNavigationProp<{}>>();
 
   const userMenuRef = useRef(null);
-  const { data: session } = authClient.useSession();
 
   return (
     <Stack>
@@ -113,19 +111,21 @@ export default function Layout() {
               <TouchableWithoutFeedback
                 onPress={() => {
                   if (router.canGoBack()) {
-                    router.back();
                     calendarState?.setSelectedTask(null);
+                    tempTaskState?.setIsEditing(false);
+                    router.back();
                   }
                 }}
               >
                 <View className="flex flex-row items-center gap-3 pl-4">
                   <FontAwesome5 name="caret-left" size={24} color="black" />
-                  <Text className="text-xl font-semibold">
+                  <Text className="text-xl font-semibold">Back</Text>
+                  {/* <Text className="text-xl font-semibold">
                     {format(
                       calendarState?.displayedDay || new Date(),
                       "MMM do"
                     )}
-                  </Text>
+                  </Text> */}
                 </View>
               </TouchableWithoutFeedback>
             );
@@ -134,17 +134,19 @@ export default function Layout() {
           headerRight: () => {
             return (
               <TouchableWithoutFeedback
-                onPress={() => {
+                onPress={async () => {
                   if (typeof calendarState?.createOrUpdateTask === "function") {
-                    calendarState?.createOrUpdateTask(
-                      tempTaskState?.tempName || "New Task",
-                      tempTaskState?.tempStartDateTime || new Date(),
-                      tempTaskState?.tempEndDateTime || new Date(),
-                      tempTaskState?.tempTaskColor?.value || "bg-teal-500",
-                      tempTaskState?.tempNotes || ""
-                    );
-                    if (router.canGoBack()) {
+                    const creationResponse: string =
+                      await calendarState?.createOrUpdateTask(
+                        tempTaskState?.tempName || "New Task",
+                        tempTaskState?.tempStartDateTime || new Date(),
+                        tempTaskState?.tempEndDateTime || new Date(),
+                        tempTaskState?.tempTaskColor?.value || "bg-teal-500",
+                        tempTaskState?.tempNotes || ""
+                      );
+                    if (creationResponse !== "error" && router.canGoBack()) {
                       calendarState?.setSelectedTask(null);
+                      tempTaskState?.setIsEditing(false);
                       router.back();
                     }
                   }

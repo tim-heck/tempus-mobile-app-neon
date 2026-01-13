@@ -24,12 +24,12 @@
       "package": "com.codegrease.tempus"
     },
     "web": {
-      "output": "static",
+      "output": "server",
       "favicon": "./assets/images/favicon.png",
       "bundler": "metro"
     },
     "plugins": [
-      "expo-router",
+      ["expo-router", { "origin": "http://localhost:3000" }],
       [
         "expo-splash-screen",
         {

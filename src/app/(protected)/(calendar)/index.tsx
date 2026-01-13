@@ -15,30 +15,27 @@ import {
   subWeeks,
 } from "date-fns";
 import { useContext, useEffect, useRef, useState } from "react";
-import { Animated, Appearance, FlatList, Text, View } from "react-native";
+import { FlatList, Text, View } from "react-native";
 
 import { CalendarMonthDay } from "components/CalendarMonthDay";
 import CalendarWeek from "components/CalendarWeek";
 import { CustomButton } from "components/CustomButton";
 import Select from "components/Select";
+import { authClient } from "lib/auth-client";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Day } from "types";
+import { Day, Task, Tasks } from "types";
 import CalendarContext, { views } from "utils/calendarContext";
 
 const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-const NUM_OF_WEEKS: number = 52;
-const NUM_OF_MONTHS: number = 12;
-const NUM_OF_YEARS: number = 1;
-
 export default function Calendar() {
   const calendarState = useContext(CalendarContext);
   const calendarRef = useRef<FlatList>(null);
-  const dayViewAnimation = useRef(new Animated.Value(0)).current;
-  const colorScheme = Appearance.getColorScheme();
 
   const [months, setMonths] = useState<Day[][][]>([]);
   const [weeks, setWeeks] = useState<Day[][]>([]);
+
+  const [loading, setLoading] = useState(true);
 
   const buildInitialWeekView = (today: Date) => {
     const initialWeeks: Day[][] = [];
@@ -190,11 +187,6 @@ export default function Calendar() {
     return weeks;
   };
 
-  useEffect(() => {
-    buildInitialWeekView(new Date());
-    buildInitialMonthView(new Date());
-  }, []);
-
   const goForward = (currentView: string | undefined) => {
     if (currentView === "month") {
       const currentMonths = [...months];
@@ -247,6 +239,50 @@ export default function Calendar() {
     }
   };
 
+  const fetchUserTasks = async () => {
+    const cookies = authClient.getCookie();
+    const headers = {
+      Cookie: cookies,
+    };
+    const response = await fetch(`http://localhost:3000/api/tasks`, {
+      headers,
+      // 'include' can interfere with the cookies we just set manually in the headers
+      credentials: "omit",
+    });
+    const data = await response.json();
+    const parsedTasksByDate: Tasks = {};
+    data.forEach((task: Task) => {
+      const date = format(task.startDateTime, "yyyy-MMM-dd");
+      if (!parsedTasksByDate[date]) {
+        parsedTasksByDate[date] = {};
+      }
+      parsedTasksByDate[date][task.bucketId] = [];
+      parsedTasksByDate[date][task.bucketId].push({
+        ...task,
+        startDateTime: new Date(task.startDateTime),
+        endDateTime: new Date(task.endDateTime),
+      });
+    });
+    calendarState?.setTasks(parsedTasksByDate);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    buildInitialWeekView(new Date());
+    buildInitialMonthView(new Date());
+    fetchUserTasks();
+  }, []);
+
+  if (loading) {
+    return (
+      <SafeAreaView>
+        <View>
+          <Text>Loading...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView
       edges={["left", "right", "bottom"]}
@@ -258,13 +294,10 @@ export default function Calendar() {
         <View className="w-full flex-row items-center justify-between gap-4">
           <CustomButton
             type="icon"
+            icon={<FontAwesome5 name="caret-left" size={28} color="black" />}
+            text="Prev"
             onPress={() => goBack(calendarState?.view.value)}
-          >
-            <View className="flex flex-row items-center gap-2">
-              <FontAwesome5 name="caret-left" size={28} color="black" />
-              <Text className="text-xl font-semibold">Prev</Text>
-            </View>
-          </CustomButton>
+          />
           <Select
             options={views}
             currentValue={calendarState?.view || views.month}
@@ -272,13 +305,11 @@ export default function Calendar() {
           />
           <CustomButton
             type="icon"
+            iconRight
+            icon={<FontAwesome5 name="caret-right" size={28} color="black" />}
+            text="Next"
             onPress={() => goForward(calendarState?.view.value)}
-          >
-            <View className="flex flex-row items-center gap-2">
-              <Text className="text-xl font-semibold">Next</Text>
-              <FontAwesome5 name="caret-right" size={28} color="black" />
-            </View>
-          </CustomButton>
+          />
         </View>
       </View>
       {calendarState?.view.value === "week" && <CalendarWeek week={weeks[1]} />}
